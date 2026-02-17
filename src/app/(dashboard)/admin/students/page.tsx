@@ -1,7 +1,8 @@
 import { db } from '@/db';
 import { students, users, rooms, floors } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-import { CheckCircle, XCircle, Search, Filter, Edit } from 'lucide-react';
+import { CheckCircle, XCircle, Search, Filter } from 'lucide-react';
+import StudentActionModal from '@/components/modals/StudentActionModal';
 
 async function getStudents() {
   try {
@@ -10,6 +11,7 @@ async function getStudents() {
         id: students.id,
         name: users.name,
         registerNumber: students.registerNumber,
+        roomId: students.roomId, // Needed for modal
         room: rooms.roomNumber,
         floor: floors.floorNumber,
         feeStatus: students.feeStatus,
@@ -27,8 +29,22 @@ async function getStudents() {
   }
 }
 
+async function getVacantRooms() {
+  try {
+    const vacantRooms = await db.query.rooms.findMany({
+      where: eq(rooms.status, 'vacant'),
+      columns: { id: true, roomNumber: true },
+    });
+    return vacantRooms;
+  } catch (error) {
+    console.error('Fetch vacant rooms error:', error);
+    return [];
+  }
+}
+
 export default async function StudentsPage() {
   const studentsData = await getStudents();
+  const vacantRooms = await getVacantRooms();
 
   return (
     <div>
@@ -116,9 +132,15 @@ export default async function StudentsPage() {
                     </span>
                   </td>
                   <td className="p-4 text-right">
-                    <button className="p-2 hover:bg-[#202225] rounded text-blue-400 transition">
-                      <Edit size={16} />
-                    </button>
+                    <StudentActionModal
+                      student={{
+                        id: student.id,
+                        name: student.name,
+                        roomId: student.roomId,
+                        feeStatus: student.feeStatus as 'paid' | 'pending',
+                      }}
+                      vacantRooms={vacantRooms}
+                    />
                   </td>
                 </tr>
               ))

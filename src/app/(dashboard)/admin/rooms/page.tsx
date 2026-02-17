@@ -2,6 +2,8 @@ import { db } from '@/db';
 import { floors, rooms } from '@/db/schema';
 import { asc } from 'drizzle-orm';
 import { Users } from 'lucide-react';
+import CreateFloorModal from '@/components/modals/CreateFloorModal';
+import AddRoomModal from '@/components/modals/AddRoomModal';
 
 // Define explicit types for the query result
 interface Room {
@@ -44,6 +46,7 @@ export default async function RoomsPage() {
           </p>
         </div>
         <div className="flex gap-4">
+          {/* Legend */}
           <div className="flex items-center gap-2 text-xs font-bold uppercase text-gray-400">
             <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
             Vacant
@@ -52,6 +55,9 @@ export default async function RoomsPage() {
             <div className="w-3 h-3 rounded-full bg-red-500"></div>
             Occupied
           </div>
+          <div className="h-6 w-px bg-[#3f4147] mx-2"></div>
+          {/* Action */}
+          <CreateFloorModal />
         </div>
       </div>
 
@@ -59,15 +65,22 @@ export default async function RoomsPage() {
         {floorsData.length === 0 && (
           <div className="text-center p-12 text-gray-400">
             <p>No floors or rooms created explicitly yet.</p>
-            <p className="text-xs">Add Wardens to auto-create floors.</p>
+            <p className="text-xs">Create a floor to get started.</p>
           </div>
         )}
 
         {floorsData.map((floor) => (
           <div key={floor.id}>
-            <h2 className="text-sm font-bold uppercase tracking-wider mb-4 text-gray-400 pl-1">
-              Floor {floor.floorNumber}
-            </h2>
+            <div className="flex items-center justify-between mb-4 border-b border-[#2f3136] pb-2">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-gray-400 pl-1">
+                Floor {floor.floorNumber}
+              </h2>
+              <AddRoomModal
+                floorId={floor.id}
+                floorNumber={floor.floorNumber}
+              />
+            </div>
+
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {floor.rooms.length === 0 && (
                 <p className="text-xs text-gray-500 italic col-span-full">

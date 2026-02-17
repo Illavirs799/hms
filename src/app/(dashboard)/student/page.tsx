@@ -4,6 +4,7 @@ import { auth } from '@/auth';
 import { eq } from 'drizzle-orm';
 import { User, Home, DollarSign } from 'lucide-react';
 import { redirect } from 'next/navigation';
+import EditProfileModal from '@/components/modals/EditProfileModal';
 
 async function getStudentData(userId: string) {
   try {
@@ -121,9 +122,7 @@ export default async function StudentDashboard() {
               {student.registerNumber}
             </p>
           </div>
-          <button className="mt-4 text-[#00aff4] text-xs font-bold hover:underline uppercase">
-            Edit Profile
-          </button>
+          <EditProfileModal currentName={student.name} />
         </div>
       </div>
     </div>

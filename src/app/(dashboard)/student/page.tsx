@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { students, rooms, floors, users } from '@/db/schema';
-import { getSession } from '@/lib/auth';
+import { auth } from '@/auth';
 import { eq } from 'drizzle-orm';
 import { User, Home, DollarSign } from 'lucide-react';
 import { redirect } from 'next/navigation';
@@ -31,12 +31,12 @@ async function getStudentData(userId: string) {
 }
 
 export default async function StudentDashboard() {
-  const session = await getSession();
-  if (!session || session.role !== 'student') {
+  const session = await auth();
+  if (!session || session.user?.role !== 'student') {
     redirect('/login');
   }
 
-  const student = await getStudentData(session.userId as string);
+  const student = await getStudentData(session.user.id as string);
 
   if (!student) {
     // Fallback if student record doesn't exist yet (or registration incomplete)

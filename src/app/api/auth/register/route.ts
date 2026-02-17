@@ -3,6 +3,7 @@ import { db } from '@/db';
 import { users, students } from '@/db/schema';
 import { hashPassword } from '@/lib/auth';
 import { eq } from 'drizzle-orm';
+import bcrypt from 'bcryptjs';
 
 export async function POST(req: NextRequest) {
   try {
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
 
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     await db.transaction(async (tx) => {
       const [newUser] = await tx

@@ -2,14 +2,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, Mail, User, Shield, GraduationCap } from 'lucide-react';
+import { Lock, Mail } from 'lucide-react';
 import Link from 'next/link';
+import { signIn } from 'next-auth/react';
 
 export default function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [role, setRole] = useState('student');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -21,23 +21,22 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, role }),
+      const result = await signIn('credentials', {
+        email: formData.email,
+        password: formData.password,
+        redirect: false, // We handle redirect manually to force reload or check response
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
-
-      if (data.redirect) {
-        router.push(data.redirect);
+      if (result?.error) {
+        setError('Invalid email or password');
+      } else {
+        // Login successful - the middleware or client-side logic will handle redirect
+        // But since we set redirect:false, we need to manually reload or push.
+        // A hard reload is safest to clear stale client state.
+        window.location.href = '/';
       }
     } catch (err: any) {
-      setError(err.message);
+      setError('An unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -51,23 +50,6 @@ export default function LoginPage() {
           <p className="text-gray-400 text-sm">
             We're so excited to see you again!
           </p>
-        </div>
-
-        {/* Role Selection - Tab style */}
-        <div className="flex bg-[#202225] p-1 rounded mb-6 select-none">
-          {['student', 'warden', 'admin'].map((r) => (
-            <button
-              key={r}
-              onClick={() => setRole(r)}
-              className={`flex-1 py-1.5 text-xs font-bold uppercase rounded transition-colors ${
-                role === r
-                  ? 'bg-[#40444b] text-white shadow-sm'
-                  : 'text-gray-400 hover:text-gray-300'
-              }`}
-            >
-              {r}
-            </button>
-          ))}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -102,11 +84,6 @@ export default function LoginPage() {
                   setFormData({ ...formData, password: e.target.value })
                 }
               />
-            </div>
-            <div className="text-right mt-1">
-              <a href="#" className="text-xs text-[#00aff4] hover:underline">
-                Forgot your password?
-              </a>
             </div>
           </div>
 

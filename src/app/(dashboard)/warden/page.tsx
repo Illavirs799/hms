@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { wardens, students, rooms, complaints } from '@/db/schema';
-import { getSession } from '@/lib/auth';
+import { auth } from '@/auth';
 import { eq, count, and } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 import { Users } from 'lucide-react';
@@ -75,12 +75,12 @@ async function getWardenData(userId: string): Promise<WardenData | null> {
 }
 
 export default async function WardenDashboard() {
-  const session = await getSession();
-  if (!session || session.role !== 'warden') {
+  const session = await auth();
+  if (!session || session.user?.role !== 'warden') {
     redirect('/login');
   }
 
-  const data = await getWardenData(session.userId as string);
+  const data = await getWardenData(session.user.id as string);
 
   if (!data) {
     return (

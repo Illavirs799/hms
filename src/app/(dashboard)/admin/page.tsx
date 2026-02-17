@@ -1,6 +1,7 @@
 import { db } from '@/db';
 import { floors, rooms, students } from '@/db/schema';
 import { count, eq } from 'drizzle-orm';
+import Link from 'next/link';
 
 async function getStats() {
   try {
@@ -68,12 +69,18 @@ export default async function AdminDashboard() {
       <div className="bg-[#2f3136] p-6 rounded-lg shadow-sm">
         <h2 className="text-lg font-bold text-white mb-4">Quick Actions</h2>
         <div className="flex gap-4">
-          <button className="px-4 py-2 bg-[#5865f2] text-white text-sm font-medium rounded hover:bg-[#4752c4] transition shadow-sm">
-            Add Student
-          </button>
-          <button className="px-4 py-2 bg-[#4f545c] text-white text-sm font-medium rounded hover:bg-[#5d6269] transition shadow-sm">
-            Assign Warden
-          </button>
+          <Link
+            href="/admin/students"
+            className="px-4 py-2 bg-[#5865f2] text-white text-sm font-medium rounded hover:bg-[#4752c4] transition shadow-sm inline-block"
+          >
+            Manage Students
+          </Link>
+          <Link
+            href="/admin/wardens"
+            className="px-4 py-2 bg-[#4f545c] text-white text-sm font-medium rounded hover:bg-[#5d6269] transition shadow-sm inline-block"
+          >
+            Manage Wardens
+          </Link>
         </div>
       </div>
     </div>

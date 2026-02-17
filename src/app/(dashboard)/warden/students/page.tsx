@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { wardens, students, rooms, users } from '@/db/schema';
-import { getSession } from '@/lib/auth';
+import { auth } from '@/auth';
 import { eq } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 
@@ -46,10 +46,10 @@ async function getFloorStudents(
 }
 
 export default async function WardenStudentsPage() {
-  const session = await getSession();
-  if (!session || session.role !== 'warden') redirect('/login');
+  const session = await auth();
+  if (!session || session.user?.role !== 'warden') redirect('/login');
 
-  const data = await getFloorStudents(session.userId as string);
+  const data = await getFloorStudents(session.user.id as string);
 
   if (!data) {
     return (

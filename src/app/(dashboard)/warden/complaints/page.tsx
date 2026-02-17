@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { getSession } from '@/lib/auth';
+import { auth } from '@/auth';
 import { wardens, complaints, students, rooms, users } from '@/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
@@ -55,10 +55,10 @@ async function resolveComplaint(id: string) {
 }
 
 export default async function WardenComplaintsPage() {
-  const session = await getSession();
-  if (!session || session.role !== 'warden') redirect('/login');
+  const session = await auth();
+  if (!session || session.user?.role !== 'warden') redirect('/login');
 
-  const complaintsList = await getFloorComplaints(session.userId as string);
+  const complaintsList = await getFloorComplaints(session.user.id as string);
 
   if (!complaintsList) {
     return (

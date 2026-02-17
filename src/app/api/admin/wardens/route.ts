@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { users, wardens, floors } from '@/db/schema';
-import { hashPassword } from '@/lib/auth';
 import { eq } from 'drizzle-orm';
+import { auth } from '@/auth';
+import bcrypt from 'bcryptjs';
 
 export async function GET() {
+  const session = await auth();
+  if (session?.user?.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   try {
     const wardenList = await db
       .select({
@@ -25,6 +30,10 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (session?.user?.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   try {
     const { name, email, password, assignedFloor } = await req.json();
 
@@ -40,7 +49,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Transaction to ensure atomicity
     await db.transaction(async (tx) => {

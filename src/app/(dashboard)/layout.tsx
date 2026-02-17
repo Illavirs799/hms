@@ -1,5 +1,5 @@
 import Sidebar from '@/components/layout/Sidebar';
-import { getSession } from '@/lib/auth';
+import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 
 export default async function DashboardLayout({
@@ -7,13 +7,13 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
+  const session = await auth();
 
   if (!session) {
     redirect('/login');
   }
 
-  const role = session.role as string;
+  const role = session.user?.role as string;
 
   return (
     <div className="flex min-h-screen bg-[#36393f] text-gray-200">

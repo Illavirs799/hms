@@ -2,17 +2,18 @@
 
 import { db } from '@/db';
 import { complaints, students } from '@/db/schema';
-import { getSession } from '@/lib/auth';
+import { auth } from '@/auth';
 import { eq, desc } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
 export async function createComplaint(description: string) {
-  const session = await getSession();
-  if (!session || session.role !== 'student') return { error: 'Unauthorized' };
+  const session = await auth();
+  if (!session || session.user?.role !== 'student')
+    return { error: 'Unauthorized' };
 
   try {
     const student = await db.query.students.findFirst({
-      where: eq(students.userId, session.userId as string),
+      where: eq(students.userId, session.user.id as string),
     });
 
     if (!student) return { error: 'Student profile not found' };
@@ -32,13 +33,13 @@ export async function createComplaint(description: string) {
 }
 
 export async function getStudentComplaints() {
-  const session = await getSession();
-  if (!session || session.role !== 'student') return [];
+  const session = await auth();
+  if (!session || session.user?.role !== 'student') return [];
 
   try {
     // First get student ID
     const student = await db.query.students.findFirst({
-      where: eq(students.userId, session.userId as string),
+      where: eq(students.userId, session.user.id as string),
       columns: { id: true },
     });
 

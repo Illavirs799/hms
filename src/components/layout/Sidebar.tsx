@@ -11,19 +11,14 @@ import {
   Shield,
   User,
 } from 'lucide-react';
+import { signOut } from 'next-auth/react';
 
 export default function Sidebar({ userRole }: { userRole: string }) {
   const pathname = usePathname();
   const router = useRouter();
 
   const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      // Force full reload to clear any client-side state/cache
-      window.location.href = '/login';
-    } catch (error) {
-      console.error('Logout failed', error);
-    }
+    await signOut({ callbackUrl: '/login' });
   };
 
   const menuItems = [

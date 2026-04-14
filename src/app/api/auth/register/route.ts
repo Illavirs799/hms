@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { users, students } from '@/db/schema';
-import { hashPassword } from '@/lib/auth';
+
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 
